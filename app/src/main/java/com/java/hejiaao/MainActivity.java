@@ -1,6 +1,8 @@
 package com.java.hejiaao;
 
+import android.content.ComponentName;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +17,11 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 import java.util.Locale;
 import android.util.Log;
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.content.ServiceConnection;
+
+import com.java.hejiaao.FetchService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,20 +59,33 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void initCatagoryList() {
-        ctnts.add("ABC");
-        ctnts.add("DEF");
-        ListView lv = (ListView)findViewById(R.id.category_list);
+        ListView lv = (ListView) findViewById(R.id.category_list);
         categoryListAdapter = new ArrayAdapter(getApplicationContext(), R.layout.list_item, ctnts) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
-                String item = (String)getItem(position);
+                String item = (String) getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
-                ((TextView)ov.findViewById(R.id.title_text)).setText(item);
+                ((TextView) ov.findViewById(R.id.title_text)).setText(item);
                 return ov;
             }
         };
         lv.setAdapter(categoryListAdapter);
     }
+
+    FetchService mfetcher;
+
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mfetcher = ((FetchService.LocalBinder)service).getService();
+            mfetcher.updateList(categoryListAdapter);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mfetcher = null;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +93,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.initCatagoryList();
+        Intent srvint = new Intent(this, FetchService.class);
+        bindService(srvint, conn, BIND_AUTO_CREATE);
 
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @Override
+    protected void onDestroy() {
+        unbindService(conn);
+        super.onDestroy();
+    }
 }
