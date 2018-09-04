@@ -4,6 +4,6 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="ic_recommand">Recommandations</string>
-    <string name="ic_catagory">Catagories</string>
+    <string name="ic_category">Categories</string>
     <string name="ic_manage">Manage</string>
 </resources>

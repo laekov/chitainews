@@ -8,9 +8,9 @@
         android:icon="@android:drawable/btn_star" />
 
     <item
-        android:id="@+id/navigation_catagories"
+        android:id="@+id/navigation_categories"
         android:icon="@android:drawable/ic_menu_sort_by_size"
-        android:title="@string/ic_catagory" />
+        android:title="@string/ic_category" />
 
     <item
         android:id="@+id/navigation_search"
