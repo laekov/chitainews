@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.ArrayAdapter;
 
 import com.java.hejiaao.FetchXML;
+import com.java.hejiaao.NewsView;
 
 import java.util.ArrayList;
 
@@ -52,6 +53,17 @@ public class CategoryList extends AppCompatActivity {
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
                 ((TextView)ov.findViewById(R.id.title_text)).setText(item.title);
                 ((TextView)ov.findViewById(R.id.content_text)).setText(item.content);
+				ov.setOnClickListener(new View.OnClickListener() {
+					@Override
+                    public void onClick(View v) {
+                        Intent newActivity = new Intent(CategoryList.this, NewsView.class);
+                        newActivity.putExtra("url", item.url);
+                        newActivity.putExtra("title", item.title);
+                        newActivity.putExtra("content", item.content);
+                        startActivity(newActivity);
+                    }
+                });
+               
                 return ov;
             }
         };
