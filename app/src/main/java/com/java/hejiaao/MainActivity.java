@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter categoryListAdapter;
 
+    FetchService mfetcher;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_categories:
                     findViewById(R.id.category_container).setVisibility(View.VISIBLE);
+					if (mfetcher != null) {
+						mfetcher.update();
+					}
                     mTextMessage.setText(R.string.ic_category);
                     return true;
                 case R.id.navigation_search:
@@ -72,13 +76,11 @@ public class MainActivity extends AppCompatActivity {
         lv.setAdapter(categoryListAdapter);
     }
 
-    FetchService mfetcher;
-
     ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mfetcher = ((FetchService.LocalBinder)service).getService();
-            mfetcher.updateList(categoryListAdapter);
+            mfetcher.addUpdateList(categoryListAdapter);
         }
 
         @Override

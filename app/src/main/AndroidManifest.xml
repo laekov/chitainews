@@ -25,8 +25,7 @@
         <service
             android:name=".FetchService"
             android:enabled="true"
-            android:exported="true"
-            android:usesCleartextTraffic="true">
+            android:exported="true">
             <intent-filter>
                 <action android:name="java.hejiaao.FetchPage"/>
             </intent-filter>
