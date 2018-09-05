@@ -27,6 +27,15 @@ public class FetchService extends Service {
 			title = title_;
 			url = url_;
 		}
+		public int compareTo(DataItem other) {
+			return this.url.compareTo(other.url);
+		}
+		public int hashCode() {
+			return title.hashCode() ^ url.hashCode();
+		}
+		public boolean equals(DataItem other) {
+			return this.url.equals(other.url);
+		}
 	};
 
     public class LocalBinder extends Binder {
@@ -58,22 +67,25 @@ public class FetchService extends Service {
 	Thread th;
 
     public FetchService() {
-		shown.add(new DataItem("abc", "def"));
-		shown.add(new DataItem("ggg", "sss"));
     }
 
 	public void update() {
-		Log.w("Fetchu", "Size " + this.adapters.size() + " " + this.shown.size());
+		// Log.w("Fetchu", "Size " + this.adapters.size() + " " + this.shown.size());
 		for (ArrayAdapter l : this.adapters) {
 			l.clear();
 			for (DataItem d : this.shown) {
-				Log.w("update", d.title);
-				l.add(d.title);
+				// Log.w("update", d.title);
+				l.add(d);
 			}
 		}
 }
 
     synchronized private void fetchCategory(String urlString) {
+		shown.add(new DataItem("国内新闻", "http://news.qq.com/newsgn/rss_newsgn.xml"));
+		shown.add(new DataItem("电影", "http://ent.qq.com/movie/rss_movie.xml"));
+	}
+
+    synchronized private void fetchRSS(String urlString) {
 		try {
 			URL url = new URL(urlString);
 			URLConnection tc = url.openConnection();
@@ -98,7 +110,6 @@ public class FetchService extends Service {
     	while (true) {
     		try {
 				fetchCategory("http://rss.qq.com/index.shtml");
-				fetchCategory("update");
 				th.sleep(1000);
 			} catch (Exception e) {
 			}

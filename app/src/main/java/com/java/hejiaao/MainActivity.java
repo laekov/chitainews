@@ -20,6 +20,7 @@ import android.util.Log;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.content.ServiceConnection;
+import android.widget.Toast;
 
 import com.java.hejiaao.FetchService;
 
@@ -27,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
 
-    private ArrayList<String> ctnts = new ArrayList();
+    private ArrayList<FetchService.DataItem> ctnts = new ArrayList();
 
-    private ArrayAdapter categoryListAdapter;
+    private ArrayAdapter<FetchService.DataItem> categoryListAdapter;
 
     FetchService mfetcher;
 
@@ -64,12 +65,20 @@ public class MainActivity extends AppCompatActivity {
 
     protected void initCatagoryList() {
         ListView lv = (ListView) findViewById(R.id.category_list);
-        categoryListAdapter = new ArrayAdapter(getApplicationContext(), R.layout.list_item, ctnts) {
+        categoryListAdapter = new ArrayAdapter<FetchService.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
-                String item = (String) getItem(position);
+                final FetchService.DataItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
-                ((TextView) ov.findViewById(R.id.title_text)).setText(item);
+                ((TextView) ov.findViewById(R.id.title_text)).setText(item.title);
+                ov.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent newActivity = new Intent(MainActivity.this, CategoryList.class);
+                        newActivity.putExtra("url", item.url);
+                        startActivity(newActivity);
+                    }
+                });
                 return ov;
             }
         };

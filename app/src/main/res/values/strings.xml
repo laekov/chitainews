@@ -6,4 +6,5 @@
     <string name="ic_recommand">Recommandations</string>
     <string name="ic_category">Categories</string>
     <string name="ic_manage">Manage</string>
+    <string name="title_activity_category_list">CategoryList</string>
 </resources>
