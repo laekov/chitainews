@@ -34,7 +34,12 @@
         <activity
             android:name=".CategoryList"
             android:label="@string/title_activity_category_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".FetchXML"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

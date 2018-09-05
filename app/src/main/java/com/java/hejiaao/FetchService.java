@@ -2,8 +2,8 @@ package com.java.hejiaao;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
+import android.os.Binder;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.util.Log;
@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.ArrayList;
 
 public class FetchService extends Service {
+	public boolean isActive;
 	public class DataItem {
 		public String title;
 		public String url;
@@ -107,7 +108,8 @@ public class FetchService extends Service {
 	}
 
     private void threadMain() {
-    	while (true) {
+		this.isActive = true;
+    	while (this.isActive) {
     		try {
 				fetchCategory("http://rss.qq.com/index.shtml");
 				th.sleep(1000);
@@ -123,7 +125,7 @@ public class FetchService extends Service {
 
 	@Override
 	public void onDestroy() {
-		th.stop();
+		this.isActive = false;
 		super.onDestroy();
 	}
 
