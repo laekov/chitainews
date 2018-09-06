@@ -8,6 +8,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ListView;
 import android.view.View;
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
                 final FetchService.DataItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
                 ((TextView) ov.findViewById(R.id.title_text)).setText(item.title);
+                ((ImageButton)ov.findViewById(R.id.likestar)).setVisibility(View.GONE);
+
                 ov.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

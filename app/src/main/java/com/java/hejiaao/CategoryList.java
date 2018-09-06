@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ArrayAdapter;
@@ -50,6 +52,7 @@ public class CategoryList extends AppCompatActivity {
     };
 
     protected void initNewsList() {
+        final History history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
         ListView lv = (ListView) findViewById(R.id.newslist);
         ctnts.add(new FetchXML.DataItem("", "", "加载中"));
         newsListAdapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
@@ -57,18 +60,32 @@ public class CategoryList extends AppCompatActivity {
             public View getView(int position, View corr, ViewGroup parent) {
                 final FetchXML.DataItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
+
+                TextView title_tv = ((TextView)ov.findViewById(R.id.title_text));
 				if (item.title.length() > 0) {
-					((TextView)ov.findViewById(R.id.title_text)).setText(item.title);
-				} else {
-					ov.findViewById(R.id.title_text).setVisibility(View.GONE);
+                    if (history.has("history", item.url)) {
+                        title_tv.setTextColor(Color.parseColor("#888888"));
+                    } else {
+                        title_tv.setTextColor(Color.parseColor("#000000"));
+                    }
+                    title_tv.setText(item.title);
+                    title_tv.setVisibility(View.VISIBLE);
+                } else {
+					title_tv.setVisibility(View.GONE);
 				}
+				if (history.has("like", item.url)) {
+                    ((ImageButton)ov.findViewById(R.id.likestar)).setImageResource(android.R.drawable.btn_star_big_on);
+                }
                 ((TextView)ov.findViewById(R.id.content_text)).setText(item.content);
+
+
 				ov.setOnClickListener(new View.OnClickListener() {
 					@Override
                     public void onClick(View v) {
 					    if (item.url.length() == 0) {
 					        return;
                         }
+                        history.add("history", item.url);
                         Intent newActivity = new Intent(CategoryList.this, NewsView.class);
                         newActivity.putExtra("url", item.url);
                         newActivity.putExtra("title", item.title);
@@ -111,6 +128,8 @@ public class CategoryList extends AppCompatActivity {
         }
     }
 
+    private mBroadcastRecv mrecv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,7 +156,8 @@ public class CategoryList extends AppCompatActivity {
                 //finish();
             }
         });
-        registerReceiver(new mBroadcastRecv(), new IntentFilter("list_load_done"));
+        mrecv = new mBroadcastRecv();
+        registerReceiver(mrecv, new IntentFilter("list_load_done"));
     }
 
 
@@ -145,6 +165,7 @@ public class CategoryList extends AppCompatActivity {
     public void onDestroy() {
         unbindService(conn);
         super.onDestroy();
+        unregisterReceiver(mrecv);
     }
 
 }
