@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Binder;
+import android.util.TimeUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.util.Log;
@@ -24,7 +25,7 @@ import org.w3c.dom.*;
 
 public class FetchXML extends Service {
 	public boolean isActive;
-	public class DataItem {
+	static public class DataItem {
 		public String title;
 		public String url;
 		public String content;
@@ -44,8 +45,11 @@ public class FetchXML extends Service {
 		}
 	};
 
-	private ArrayList<ArrayAdapter> adapters = new ArrayList();
-	private HashSet<DataItem> newslist = new HashSet();
+	private int cds = 0;
+	private ArrayList adapter_data;
+	private ArrayAdapter adapter;
+
+	private ArrayList<DataItem> newslist = new ArrayList();
 	private String rss_url;
 
     public FetchXML() {
@@ -61,18 +65,11 @@ public class FetchXML extends Service {
 
     Thread th;
 
-	public void addUpdateList(ArrayAdapter l) {
-		adapters.add(l);
+	public void addUpdateList(ArrayAdapter l, ArrayList a) {
+		adapter = l;
+		adapter_data = a;
 	}
 
-	public void update() {
-		for (ArrayAdapter l : this.adapters) {
-			l.clear();
-			for (DataItem d : this.newslist) {
-				l.add(d);
-			}
-		}
-	}
 
 	synchronized private void fetchRSS(String rss_url) {
 		try {
@@ -91,18 +88,63 @@ public class FetchXML extends Service {
 				this.newslist.add(new DataItem(title, uurl, content));
 			}
 		} catch (Exception e) {
+			Log.e("rss fetch error", e.getMessage());
 		}
+	}
+
+	public void loadMoreCache(int z) {
+		this.cds += 5;
+		if (this.cds > this.newslist.size()) {
+		    this.cds = this.newslist.size();
+		}
+		if (this.cds > z) {
+		    this.cds = z;
+		}
+		// Log.w("cache", "load more triggered " + this.cds);
+	}
+
+	public void loadMoreMain() {
+		if (adapter_data.size() - 1 < this.cds) {
+			int i = adapter_data.size();
+			adapter_data.remove(i - 1);
+			for (int j = -- i; j < i + 5 && j < this.cds; ++ j) {
+				adapter_data.add(this.newslist.get(j));
+			}
+			if (adapter_data.size() == this.newslist.size()) {
+				adapter_data.add(new DataItem("", "", "没有更多啦ovo"));
+			} else {
+				// Log.i("count", adapter_data.size() + " " + this.newslist.size());
+				adapter_data.add(new DataItem("", "", "正在加载更多"));
+			}
+			adapter.notifyDataSetChanged();
+		}
+	}
+
+	public void loadMore(int x) {
+		final int z = x;
+		Thread ths = new Thread() {
+			public void run() {
+				try {
+					this.sleep(1000);
+				} catch (Exception e) {
+				}
+				loadMoreCache(z);
+				Intent i = new Intent("list_load_done");
+				sendBroadcast(i);
+			}
+		};
+		ths.start();
 	}
 
     private void threadMain() {
 		this.isActive = true;
 		fetchRSS(rss_url);
-    	while (this.isActive) {
+		this.loadMore(5);
+		while (this.isActive) {
     		try {
 				th.sleep(1000);
 			} catch (Exception e) {
 			}
-			break;
 		}
 	}
 

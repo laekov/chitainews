@@ -1,7 +1,10 @@
 package com.java.hejiaao;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -9,9 +12,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ArrayAdapter;
@@ -34,8 +39,8 @@ public class CategoryList extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mfetcher = ((FetchXML.LocalBinder)service).getService();
             if (newsListAdapter != null) {
-                mfetcher.addUpdateList(newsListAdapter);
-            }
+                mfetcher.addUpdateList(newsListAdapter, ctnts);
+			}
         }
 
         @Override
@@ -46,16 +51,24 @@ public class CategoryList extends AppCompatActivity {
 
     protected void initNewsList() {
         ListView lv = (ListView) findViewById(R.id.newslist);
+        ctnts.add(new FetchXML.DataItem("", "", "加载中"));
         newsListAdapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
                 final FetchXML.DataItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
-                ((TextView)ov.findViewById(R.id.title_text)).setText(item.title);
+				if (item.title.length() > 0) {
+					((TextView)ov.findViewById(R.id.title_text)).setText(item.title);
+				} else {
+					ov.findViewById(R.id.title_text).setVisibility(View.GONE);
+				}
                 ((TextView)ov.findViewById(R.id.content_text)).setText(item.content);
 				ov.setOnClickListener(new View.OnClickListener() {
 					@Override
                     public void onClick(View v) {
+					    if (item.url.length() == 0) {
+					        return;
+                        }
                         Intent newActivity = new Intent(CategoryList.this, NewsView.class);
                         newActivity.putExtra("url", item.url);
                         newActivity.putExtra("title", item.title);
@@ -68,11 +81,35 @@ public class CategoryList extends AppCompatActivity {
             }
         };
         if (mfetcher != null) {
-            mfetcher.addUpdateList(newsListAdapter);
+            mfetcher.addUpdateList(newsListAdapter, ctnts);
         }
 		lv.setAdapter(newsListAdapter);
+        lv.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+			}
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				// Log.i("scroll", "down on action " + view.getLastVisiblePosition() + "  " + newsListAdapter.getCount());
+				if (view.getLastVisiblePosition() + 1 >= newsListAdapter.getCount()) {
+                    if (mfetcher != null) {
+                        mfetcher.loadMore(newsListAdapter.getCount() + 5);
+					}
+                }
+
+            }
+        });
     }
 
+    private class mBroadcastRecv extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == "list_load_done") {
+				mfetcher.loadMoreMain();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,12 +132,14 @@ public class CategoryList extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 				if (mfetcher != null){
-					mfetcher.update();
+					mfetcher.loadMore(9999);
 				}
                 //finish();
             }
         });
+        registerReceiver(new mBroadcastRecv(), new IntentFilter("list_load_done"));
     }
+
 
     @Override
     public void onDestroy() {
