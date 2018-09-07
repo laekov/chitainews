@@ -122,8 +122,10 @@ public class CategoryList extends AppCompatActivity {
     private class mBroadcastRecv extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() == "list_load_done") {
+            if (intent.getAction().equals("list_load_done")) {
 				mfetcher.loadMoreMain();
+            } else if (intent.getAction().equals("update_like")) {
+                newsListAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -157,7 +159,9 @@ public class CategoryList extends AppCompatActivity {
             }
         });
         mrecv = new mBroadcastRecv();
-        registerReceiver(mrecv, new IntentFilter("list_load_done"));
+        IntentFilter itf = new IntentFilter("list_load_done");
+        itf.addAction("update_like");
+        registerReceiver(mrecv, itf);
     }
 
 

@@ -51,8 +51,10 @@ public class FetchXML extends Service {
 
 	private ArrayList<DataItem> newslist = new ArrayList();
 	private String rss_url;
+	protected History history;
 
     public FetchXML() {
+    	history = History.getInstance("qaq");
     }
 
     public class LocalBinder extends Binder {
@@ -85,6 +87,7 @@ public class FetchXML extends Service {
 				String title = it.getElementsByTagName("title").item(0).getTextContent();
 				String uurl = it.getElementsByTagName("link").item(0).getTextContent();
 				String content = it.getElementsByTagName("description").item(0).getTextContent();
+				this.history.addCache(uurl, title, content);
 				this.newslist.add(new DataItem(title, uurl, content));
 			}
 		} catch (Exception e) {
