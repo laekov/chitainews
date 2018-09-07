@@ -49,6 +49,7 @@ public class FetchXML extends Service {
 	private ArrayList adapter_data;
 	private ArrayAdapter adapter;
 
+	private ArrayList<DataItem> rawnewslist = new ArrayList();
 	private ArrayList<DataItem> newslist = new ArrayList();
 	private String rss_url;
 	protected History history;
@@ -67,11 +68,22 @@ public class FetchXML extends Service {
 
     Thread th;
 
+    String filter = "";
+
 	public void addUpdateList(ArrayAdapter l, ArrayList a) {
 		adapter = l;
 		adapter_data = a;
 	}
 
+	private void applyFilter() {
+		this.newslist.clear();
+		for (DataItem d : rawnewslist) {
+			if (filterCheck(d)) {
+				this.newslist.add(d);
+			}
+		}
+		this.cds = 0;
+	}
 
 	synchronized private void fetchRSS(String rss_url) {
 		try {
@@ -88,7 +100,8 @@ public class FetchXML extends Service {
 				String uurl = it.getElementsByTagName("link").item(0).getTextContent();
 				String content = it.getElementsByTagName("description").item(0).getTextContent();
 				this.history.addCache(uurl, title, content);
-				this.newslist.add(new DataItem(title, uurl, content));
+				this.rawnewslist.add(new DataItem(title, uurl, content));
+				this.applyFilter();
 			}
 		} catch (Exception e) {
 			Log.e("rss fetch error", e.getMessage());
@@ -104,6 +117,10 @@ public class FetchXML extends Service {
 		    this.cds = z;
 		}
 		// Log.w("cache", "load more triggered " + this.cds);
+	}
+
+	private boolean filterCheck(DataItem d) {
+		return d.title.indexOf(this.filter) > -1 || d.content.indexOf(this.filter) > -1;
 	}
 
 	public void loadMoreMain() {
@@ -128,7 +145,7 @@ public class FetchXML extends Service {
 		Thread ths = new Thread() {
 			public void run() {
 				try {
-					this.sleep(1000);
+					this.sleep(300);
 				} catch (Exception e) {
 				}
 				loadMoreCache(z);
@@ -137,6 +154,15 @@ public class FetchXML extends Service {
 			}
 		};
 		ths.start();
+	}
+
+	public void applySearch(String f) {
+		this.filter = f;
+		this.applyFilter();
+		adapter_data.clear();
+		adapter_data.add(new DataItem("", "", "正在加载更多"));
+		loadMoreMain();
+		adapter.notifyDataSetChanged();
 	}
 
     private void threadMain() {

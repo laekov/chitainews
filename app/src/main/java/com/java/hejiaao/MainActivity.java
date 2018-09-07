@@ -61,8 +61,6 @@ public class MainActivity extends AppCompatActivity {
 						mfetcher.update();
 					}
                     return true;
-                case R.id.navigation_search:
-                    return true;
                 case R.id.navigation_manage:
                     return true;
             }
@@ -165,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        findViewById(R.id.category_container).setVisibility(View.GONE);
         this.history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
 
         super.onCreate(savedInstanceState);
@@ -178,6 +175,8 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        findViewById(R.id.category_container).setVisibility(View.GONE);
 
         mrecv = new BroadcastReceiver() {
             @Override

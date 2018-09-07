@@ -14,10 +14,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -58,6 +60,7 @@ public class CategoryList extends AppCompatActivity {
         newsListAdapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
+
                 final FetchXML.DataItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
 
@@ -148,16 +151,17 @@ public class CategoryList extends AppCompatActivity {
 
 		this.initNewsList();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+		final EditText et = (EditText)findViewById(R.id.filterText);
+        final ImageButton af = (ImageButton)findViewById(R.id.applyFilter);
+
+        af.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-				if (mfetcher != null){
-					mfetcher.loadMore(9999);
-				}
-                //finish();
+            public void onClick(View v) {
+                String filter = et.getText().toString();
+                mfetcher.applySearch(filter);
             }
         });
+
         mrecv = new mBroadcastRecv();
         IntentFilter itf = new IntentFilter("list_load_done");
         itf.addAction("update_like");

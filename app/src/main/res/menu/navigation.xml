@@ -13,10 +13,6 @@
         android:title="@string/ic_category" />
 
     <item
-        android:id="@+id/navigation_search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:title="@android:string/search_go" />
-    <item
         android:id="@+id/navigation_manage"
         android:title="@string/ic_manage"
         android:icon="@android:drawable/ic_menu_manage" />
