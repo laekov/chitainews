@@ -11,6 +11,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ArrayAdapter;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 import android.util.Log;
@@ -32,9 +35,9 @@ import com.java.hejiaao.FetchService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ArrayList<FetchService.DataItem> ctnts = new ArrayList();
+    private ArrayList<CategoryItem> ctnts = new ArrayList();
 
-    private ArrayAdapter<FetchService.DataItem> categoryListAdapter;
+    private ArrayAdapter<CategoryItem> categoryListAdapter;
 
     private ArrayList<String> likes_url = new ArrayList();
     private ArrayList<FetchXML.DataItem> likes = new ArrayList();
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             findViewById(R.id.category_container).setVisibility(View.GONE);
             findViewById(R.id.recmd_container).setVisibility(View.GONE);
+            findViewById(R.id.manage_container).setVisibility(View.GONE);
             switch (item.getItemId()) {
                 case R.id.navigation_recommandation:
                     findViewById(R.id.recmd_container).setVisibility(View.VISIBLE);
@@ -62,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 					}
                     return true;
                 case R.id.navigation_manage:
+                    findViewById(R.id.manage_container).setVisibility(View.VISIBLE);
                     return true;
             }
             return false;
@@ -71,11 +76,12 @@ public class MainActivity extends AppCompatActivity {
 
     protected void initCatagoryList() {
         ListView lv = (ListView) findViewById(R.id.category_list);
-        categoryListAdapter = new ArrayAdapter<FetchService.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
+        categoryListAdapter = new ArrayAdapter<CategoryItem>(getApplicationContext(), R.layout.list_item, ctnts) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
-                final FetchService.DataItem item = getItem(position);
+                final CategoryItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
+                ov.findViewById(R.id.content_text).setVisibility(View.GONE);
                 ((TextView) ov.findViewById(R.id.title_text)).setText(item.title);
                 ((ImageButton)ov.findViewById(R.id.likestar)).setVisibility(View.GONE);
 
@@ -159,14 +165,30 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private void initManageList() {
+        ArrayList<String> btns = new ArrayList();
+        btns.add("管理目录");
+        ArrayAdapter<String> arrad = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, btns);
+        ((ListView)findViewById(R.id.manage_list)).setAdapter(arrad);
+        ((ListView)findViewById(R.id.manage_list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    Intent intent = new Intent(MainActivity.this, EditList.class);
+                    startActivity(intent);
+                }
+            }
+        });
+    }
+
     private BroadcastReceiver mrecv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        this.history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
 
         this.initCatagoryList();
         this.initLikeList();
@@ -177,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         findViewById(R.id.category_container).setVisibility(View.GONE);
+        findViewById(R.id.manage_container).setVisibility(View.GONE);
 
         mrecv = new BroadcastReceiver() {
             @Override
@@ -184,10 +207,16 @@ public class MainActivity extends AppCompatActivity {
                 if (intent.getAction().equals("update_like")) {
                     categoryListAdapter.notifyDataSetChanged();
                     mladapter.notifyDataSetChanged();
+                } else if (intent.getAction().equals("update_list")) {
+                    mfetcher.update();
                 }
             }
         };
+
+        this.initManageList();
+
         IntentFilter itf = new IntentFilter("update_like");
+        itf.addAction("update_list");
         registerReceiver(mrecv, itf);
     }
 

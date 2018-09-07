@@ -3,8 +3,12 @@ package com.java.hejiaao;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import com.java.hejiaao.FetchXML.DataItem;
+import android.widget.EditText;
 
+import com.java.hejiaao.FetchXML.DataItem;
+import com.java.hejiaao.CategoryItem;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class History {
@@ -24,6 +28,8 @@ public class History {
         this.checkTable("history");
         this.checkTable("like");
         this.checkBigTable("newscache");
+        this.checkBigTable("shown_c");
+        this.checkBigTable("hidden_c");
     }
 
     private void checkTable(String s) {
@@ -52,6 +58,29 @@ public class History {
             db.insert("newscache", null, cval);
         } catch (Exception e) {
         }
+    }
+
+    public void addCategory(String table, String url, String title) {
+        try {
+            ContentValues cval = new ContentValues();
+            cval.put("url", url);
+            cval.put("title", title);
+            cval.put("content", "");
+            db.insert(table, null, cval);
+        } catch (Exception e) {
+        }
+    }
+
+    public ArrayList<CategoryItem> getCategory(String table) {
+        Cursor cursor = db.query(table, null, null, null, null, null, null, null);
+        ArrayList<CategoryItem> res = new ArrayList();
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); ++ i) {
+            CategoryItem ci = new CategoryItem(cursor.getString(1), cursor.getString(0));
+            res.add(ci);
+            cursor.moveToNext();
+        }
+        return res;
     }
 
     public DataItem getCache(String url) {

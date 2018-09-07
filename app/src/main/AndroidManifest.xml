@@ -3,7 +3,7 @@
     package="com.java.hejiaao">
 
     <uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -42,7 +42,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".NewsView"></activity>
+        <activity android:name=".NewsView" />
+        <activity android:name=".EditList"></activity>
     </application>
 
 </manifest>

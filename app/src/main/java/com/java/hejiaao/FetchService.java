@@ -20,24 +20,9 @@ import java.util.HashSet;
 import java.util.ArrayList;
 
 public class FetchService extends Service {
+	private History history;
 	public boolean isActive;
-	public class DataItem {
-		public String title;
-		public String url;
-		DataItem(String title_, String url_) {
-			title = title_;
-			url = url_;
-		}
-		public int compareTo(DataItem other) {
-			return this.url.compareTo(other.url);
-		}
-		public int hashCode() {
-			return title.hashCode() ^ url.hashCode();
-		}
-		public boolean equals(DataItem other) {
-			return this.url.equals(other.url);
-		}
-	};
+
 
     public class LocalBinder extends Binder {
         FetchService getService() {
@@ -48,33 +33,30 @@ public class FetchService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-		if (th == null) {
-			th = new Thread() {
-				@Override
-				public void run() {
-					threadMain();
-				}
-			};
-			th.start();
-		}
         return binder;
     }
 
-    HashSet<DataItem> shown = new HashSet();
-	HashSet<DataItem> hidden = new HashSet();
+    ArrayList<CategoryItem> shown = new ArrayList<>();
 
 	ArrayList<ArrayAdapter> adapters = new ArrayList();
 
 	Thread th;
 
     public FetchService() {
+    	history = History.getInstance("qaq");
+    	if (history.getCategory("shown_c").size() + history.getCategory("hidden_c").size() == 0) {
+
+			history.addCategory("shown_c", "http://news.qq.com/newsgn/rss_newsgn.xml", "国内新闻");
+			history.addCategory("shown_c", "http://ent.qq.com/movie/rss_movie.xml", "电影");
+		}
     }
 
 	public void update() {
+    	this.shown = history.getCategory("shown_c");
 		// Log.w("Fetchu", "Size " + this.adapters.size() + " " + this.shown.size());
 		for (ArrayAdapter l : this.adapters) {
 			l.clear();
-			for (DataItem d : this.shown) {
+			for (CategoryItem d : this.shown) {
 				// Log.w("update", d.title);
 				l.add(d);
 			}
@@ -82,42 +64,8 @@ public class FetchService extends Service {
 }
 
     synchronized private void fetchCategory(String urlString) {
-		shown.add(new DataItem("国内新闻", "http://news.qq.com/newsgn/rss_newsgn.xml"));
-		shown.add(new DataItem("电影", "http://ent.qq.com/movie/rss_movie.xml"));
 	}
 
-    synchronized private void fetchRSS(String urlString) {
-		try {
-			URL url = new URL(urlString);
-			URLConnection tc = url.openConnection();
-			InputStream inps = tc.getInputStream();
-			BufferedReader inr = new BufferedReader(new InputStreamReader(inps));
-			String inputLine;
-			Pattern p = Pattern.compile("href=\"\\S*\"");
-			while ((inputLine = inr.readLine()) != null) {
-				Matcher m = p.matcher(inputLine);
-				while (m.find()) {
-					String s = m.group();
-					s = s.toLowerCase();
-					shown.add(new DataItem(s, "???"));
-				}
-			}
-		} catch (Exception e) {
-			Log.e("Fetch", e.getMessage());
-		}
-	}
-
-    private void threadMain() {
-		this.isActive = true;
-    	while (this.isActive) {
-    		try {
-				fetchCategory("http://rss.qq.com/index.shtml");
-				th.sleep(1000);
-			} catch (Exception e) {
-			}
-			break;
-		}
-	}
 
 	public void addUpdateList(ArrayAdapter l) {
 		adapters.add(l);
@@ -131,15 +79,6 @@ public class FetchService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (th == null) {
-			th = new Thread() {
-				@Override
-				public void run() {
-					threadMain();
-				}
-			};
-			th.start();
-		}
 		return super.onStartCommand(intent, flags, startId);
 	}
 }
