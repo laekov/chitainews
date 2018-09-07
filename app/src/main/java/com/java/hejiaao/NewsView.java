@@ -85,6 +85,7 @@ public class NewsView extends AppCompatActivity {
 				"Mobile MQQBrowser/6.2 TBS/043128 Safari/537.36 MicroMessenger/6.5.7.1041 " +
 				"NetType/WIFI Language/zh_CN");
         ws.setJavaScriptEnabled(true);
+        ws.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 		Log.i("view", "ws ready");
         wv.setWebViewClient(wc);
         wv.loadUrl(url);

@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayAdapter<FetchXML.DataItem> mladapter;
 
-    protected void initLikeList() {
-        ListView lv = (ListView) findViewById(R.id.recmd_list);
+    protected void updateLikeList() {
+        likes.clear();
         likes.add(new FetchXML.DataItem("", "", "喜爱列表"));
         likes_url = history.getStars();
         for (String url : likes_url) {
@@ -111,7 +111,11 @@ public class MainActivity extends AppCompatActivity {
                 likes.add(d);
             }
         }
-        likes.add(new FetchXML.DataItem("", "ref", "刷新"));
+    }
+
+    protected void initLikeList() {
+        ListView lv = (ListView) findViewById(R.id.recmd_list);
+        this.updateLikeList();
         mladapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, likes) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
@@ -128,16 +132,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (item.url.equals("ref")) {
-                            likes.clear();
-                            likes.add(new FetchXML.DataItem("", "", "喜爱列表"));
-                            likes_url = history.getStars();
-                            for (String url : likes_url) {
-                                FetchXML.DataItem d = history.getCache(url);
-                                if (d.url.length() > 0) {
-                                    likes.add(d);
-                                }
-                            }
-                            likes.add(new FetchXML.DataItem("", "ref", "刷新"));
+                            updateLikeList();
                             mladapter.notifyDataSetChanged();
                         } else if (item.url.length() > 0) {
                             Intent newActivity = new Intent(MainActivity.this, NewsView.class);
@@ -204,11 +199,14 @@ public class MainActivity extends AppCompatActivity {
         mrecv = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                Log.i("intent", intent.getAction());
                 if (intent.getAction().equals("update_like")) {
-                    categoryListAdapter.notifyDataSetChanged();
+                    Log.i("intent", "update like");
+                    updateLikeList();
                     mladapter.notifyDataSetChanged();
                 } else if (intent.getAction().equals("update_list")) {
                     mfetcher.update();
+                    categoryListAdapter.notifyDataSetChanged();
                 }
             }
         };

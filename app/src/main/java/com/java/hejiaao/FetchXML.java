@@ -106,6 +106,9 @@ public class FetchXML extends Service {
 		} catch (Exception e) {
 			Log.e("rss fetch error", e.getMessage());
 		}
+		if (this.rawnewslist.size() == 0) {
+			this.rawnewslist.add(new DataItem("出错啦", "", "这类新闻被腾讯爷爷删掉了 QwQ"));
+		}
 	}
 
 	public void loadMoreCache(int z) {

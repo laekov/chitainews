@@ -45,9 +45,27 @@ public class FetchService extends Service {
     public FetchService() {
     	history = History.getInstance("qaq");
     	if (history.getCategory("shown_c").size() + history.getCategory("hidden_c").size() == 0) {
-
-			history.addCategory("shown_c", "http://news.qq.com/newsgn/rss_newsgn.xml", "国内新闻");
-			history.addCategory("shown_c", "http://ent.qq.com/movie/rss_movie.xml", "电影");
+			history.addCategory("shown_c", "http://news.qq.com/newsgn/rss_newsgn.xml", "新闻频道");
+			history.addCategory("shown_c", "http://ent.qq.com/movie/rss_movie.xml", "娱乐频道");
+			history.addCategory("shown_c", "http://stock1.finance.qq.com/stock/dpfx/rss_dpfx.xml", "证券频道");
+			history.addCategory("shown_c", "http://finance.qq.com/scroll/rss_scroll.xml", "财经频道");
+			history.addCategory("shown_c", "http://tech.qq.com/web/rss_web.xml", "科技频道");
+			history.addCategory("shown_c", "http://auto.qq.com/comment/zjpc/rss_zjpc.xml", "汽车频道");
+			history.addCategory("shown_c", "http://sports.qq.com/rss_newssports.xml", "体育频道");
+			history.addCategory("shown_c", "http://games.qq.com/ntgame/rss_ntgame.xml", "游戏频道");
+			history.addCategory("shown_c", "http://edu.qq.com/gaokao/rss_gaokao.xml", "教育频道");
+			history.addCategory("shown_c", "http://bb.qq.com/original/rss_original.xml", "视频频道");
+			history.addCategory("shown_c", "http://book.qq.com/origin/rss_origin.xml", "读书频道");
+			history.addCategory("shown_c", "http://lady.qq.com/qqstar/rss_qqstart.xml", "女性频道");
+			history.addCategory("hidden_c", "http://baby.qq.com/bbs/rss_babybbs.xml", "育儿频道");
+			history.addCategory("hidden_c", "http://astro.qq.com/12star/rss_12star.xml", "星座频道");
+			history.addCategory("hidden_c", "http://xian.qq.com/xanews/rss_news.xml", "西安地方站");
+			history.addCategory("hidden_c", "http://digi.qq.com/mobile/manufacturer/rss_manufacturer.xml", "手机频道");
+			history.addCategory("hidden_c", "http://comic.qq.com/cosplay/rss_cosplay.xml", "动漫频道");
+			history.addCategory("hidden_c", "http://luxury.qq.com/staff/rss_staff.xml", "时尚频道");
+			history.addCategory("hidden_c", "http://joke.qq.com/jokeflash/rss_flash.xml", "笑话频道");
+			history.addCategory("hidden_c", "http://kid.qq.com/youxi/rss_game.xml", "儿童频道");
+			history.addCategory("hidden_c", "http://weather.qq.com/zixun/rss_fyzx.xml", "天气频道");
 		}
     }
 
