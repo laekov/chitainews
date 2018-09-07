@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        findViewById(R.id.category_container).setVisibility(View.GONE);
         this.history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
 
         super.onCreate(savedInstanceState);

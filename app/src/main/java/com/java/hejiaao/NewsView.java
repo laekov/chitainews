@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class NewsView extends AppCompatActivity {
+	String imgurl = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,8 @@ public class NewsView extends AppCompatActivity {
         setContentView(R.layout.activity_news_view);
 		Intent intent = getIntent();
 		final String url = intent.getStringExtra("url");
+
+		final FetchXML.DataItem data = history.getCache(url);
 
 		ImageButton likeBtn = ((ImageButton)findViewById(R.id.likeBtn));
 		if (history.has("like", url)) {
@@ -44,12 +47,31 @@ public class NewsView extends AppCompatActivity {
 			}
 		});
 
-		ImageButton shareBtn = ((ImageButton)findViewById(R.id.sh))
+		ImageButton shareBtn = ((ImageButton)findViewById(R.id.shareBtn));
+		shareBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent si = new Intent(Intent.ACTION_SEND);
+				si.setType("img/*");
+				si.putExtra(Intent.EXTRA_TEXT, data.content);
+				si.putExtra(Intent.EXTRA_SUBJECT, data.title);
+				si.putExtra(Intent.EXTRA_STREAM, imgurl);
+				si = Intent.createChooser(si, "分享新闻");
+				startActivity(si);
+			}
+		});
 
 		Log.i("view", "btn ready");
 
 		WebView wv = (WebView)findViewById(R.id.content_view);
+
 		WebViewClient wc = new WebViewClient() {
+			@Override
+			public void onLoadResource(WebView view, String url) {
+		    	if (url.matches(".*inews.gtimg.com/newsapp.*") && imgurl.length() == 0) {
+					imgurl = url;
+				}
+			}
 		    @Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				view.loadUrl(url);
