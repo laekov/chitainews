@@ -101,13 +101,14 @@ public class FetchXML extends Service {
 				String content = it.getElementsByTagName("description").item(0).getTextContent();
 				this.history.addCache(uurl, title, content);
 				this.rawnewslist.add(new DataItem(title, uurl, content));
-				this.applyFilter();
 			}
+			this.applyFilter();
 		} catch (Exception e) {
 			Log.e("rss fetch error", e.getMessage());
 		}
 		if (this.rawnewslist.size() == 0) {
 			this.rawnewslist.add(new DataItem("出错啦", "", "这类新闻被腾讯爷爷删掉了 QwQ"));
+			this.applyFilter();
 		}
 	}
 
