@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:id="@+id/recmd_container"
+        android:id="@+id/like_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -19,9 +19,41 @@
         app:layout_constraintVertical_bias="0.0">
 
         <ListView
+            android:id="@+id/like_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/recmd_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <Button
+            android:id="@+id/reset_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="999"
+            android:text="Button" />
+
+        <ListView
             android:id="@+id/recmd_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/more_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="999"
+            android:text="More" />
+
     </LinearLayout>
 
     <LinearLayout

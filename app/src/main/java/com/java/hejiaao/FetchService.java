@@ -79,7 +79,7 @@ public class FetchService extends Service {
 				l.add(d);
 			}
 		}
-}
+	}
 
     synchronized private void fetchCategory(String urlString) {
 	}

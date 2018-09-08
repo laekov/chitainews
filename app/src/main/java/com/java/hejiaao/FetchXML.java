@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.HashSet;
@@ -25,17 +26,18 @@ import org.w3c.dom.*;
 
 public class FetchXML extends Service {
 	public boolean isActive;
-	static public class DataItem {
+	static public class DataItem implements Comparable<DataItem> {
 		public String title;
 		public String url;
 		public String content;
+		public double weight;
 		DataItem(String title_, String url_, String content_) {
 			title = title_;
 			url = url_;
 			content = content_;
 		}
 		public int compareTo(DataItem other) {
-			return this.url.compareTo(other.url);
+			return - (new Double(weight)).compareTo(new Double(other.weight));
 		}
 		public int hashCode() {
 			return title.hashCode() ^ url.hashCode();

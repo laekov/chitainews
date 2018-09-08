@@ -9,4 +9,5 @@
     <string name="title_activity_category_list">CategoryList</string>
     <string name="shown_content">显示的种类</string>
     <string name="hidden_content">隐藏的种类</string>
+    <string name="ic_like">Liked</string>
 </resources>

@@ -93,6 +93,16 @@ public class History {
         return new DataItem(cursor.getString(1), cursor.getString(0), cursor.getString(2));
     }
 
+    public ArrayList<DataItem> getCaches() {
+        Cursor cursor = db.query("newscache", null, null, null, null, null, null, null);
+        ArrayList<DataItem> res = new ArrayList();
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); ++ i) {
+            res.add(new DataItem(cursor.getString(1), cursor.getString(0), cursor.getString(2)));
+        }
+        return res;
+    }
+
     public ArrayList<String> getStars() {
         ArrayList<String> res = new ArrayList();
         String [] columns = {"url"};

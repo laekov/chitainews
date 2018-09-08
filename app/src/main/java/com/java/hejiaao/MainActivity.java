@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ListView;
@@ -53,9 +54,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             findViewById(R.id.category_container).setVisibility(View.GONE);
+            findViewById(R.id.like_container).setVisibility(View.GONE);
             findViewById(R.id.recmd_container).setVisibility(View.GONE);
             findViewById(R.id.manage_container).setVisibility(View.GONE);
             switch (item.getItemId()) {
+                case R.id.navigation_like:
+                    findViewById(R.id.like_container).setVisibility(View.VISIBLE);
+                    return true;
                 case R.id.navigation_recommandation:
                     findViewById(R.id.recmd_container).setVisibility(View.VISIBLE);
                     return true;
@@ -113,8 +118,63 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void initLikeList() {
+    RcmdGenerator rg;
+    ArrayAdapter<FetchXML.DataItem> mrcadapter;
+
+    protected void initRcmdList() {
+        rg = new RcmdGenerator();
         ListView lv = (ListView) findViewById(R.id.recmd_list);
+        rg.generate();
+        ArrayList<FetchXML.DataItem> ctnts = new ArrayList();
+        ctnts.add(new FetchXML.DataItem("加载中", "", ""));
+        this.mrcadapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
+            @Override
+            public View getView(int position, View corr, ViewGroup parent) {
+                final FetchXML.DataItem item = getItem(position);
+                View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
+                if (item.title.length() > 0) {
+                    ((TextView) ov.findViewById(R.id.title_text)).setText(item.title);
+                } else {
+                    ov.findViewById(R.id.title_text).setVisibility(View.GONE);
+                }
+                ((TextView) ov.findViewById(R.id.content_text)).setText(item.content);
+                ((ImageButton) ov.findViewById(R.id.likestar)).setVisibility(View.GONE);
+                ov.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (item.url.equals("ref")) {
+                            updateLikeList();
+                            mladapter.notifyDataSetChanged();
+                        } else if (item.url.length() > 0) {
+                            Intent newActivity = new Intent(MainActivity.this, NewsView.class);
+                            newActivity.putExtra("url", item.url);
+                            startActivity(newActivity);
+                        }
+                    }
+                });
+                return ov;
+            }
+        };
+        ((ListView)findViewById(R.id.recmd_list)).setAdapter(mrcadapter);
+        ((Button)findViewById(R.id.more_action)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rg.updateList();
+            }
+        });
+        ((Button)findViewById(R.id.reset_action)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mrcadapter.clear();
+                rg.generate();
+            }
+        });
+        rg.setArray(ctnts, this);
+        rg.generate();
+    }
+
+    protected void initLikeList() {
+        ListView lv = (ListView) findViewById(R.id.like_list);
         this.updateLikeList();
         mladapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, likes) {
             @Override
@@ -194,7 +254,10 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         findViewById(R.id.category_container).setVisibility(View.GONE);
+        findViewById(R.id.recmd_container).setVisibility(View.GONE);
         findViewById(R.id.manage_container).setVisibility(View.GONE);
+
+        this.initRcmdList();
 
         mrecv = new BroadcastReceiver() {
             @Override
@@ -207,6 +270,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (intent.getAction().equals("update_list")) {
                     mfetcher.update();
                     categoryListAdapter.notifyDataSetChanged();
+                } else if (intent.getAction().equals("update_rcmd")) {
+                    mrcadapter.notifyDataSetChanged();
                 }
             }
         };
@@ -215,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter itf = new IntentFilter("update_like");
         itf.addAction("update_list");
+        itf.addAction("update_rcmd");
         registerReceiver(mrecv, itf);
     }
 
