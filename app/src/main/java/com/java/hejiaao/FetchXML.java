@@ -92,10 +92,12 @@ public class FetchXML extends Service {
 			URL url = new URL(rss_url);
 			URLConnection tc = url.openConnection();
 
+			Log.i("fetch", "fetching " + rss_url);
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document dom = builder.parse(tc.getInputStream());
 			NodeList nl = dom.getElementsByTagName("item");
+			Log.i("fetch", "downloaded");
 			for (int i = 0; i < nl.getLength(); ++ i) {
 				Element it = (Element)nl.item(i);
 				String title = it.getElementsByTagName("title").item(0).getTextContent();
@@ -105,6 +107,7 @@ public class FetchXML extends Service {
 				this.rawnewslist.add(new DataItem(title, uurl, content));
 			}
 			this.applyFilter();
+			Log.i("fetch", "fetch done");
 		} catch (Exception e) {
 			Log.e("rss fetch error", e.getMessage());
 		}

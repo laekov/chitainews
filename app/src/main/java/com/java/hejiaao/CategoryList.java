@@ -100,6 +100,7 @@ public class CategoryList extends AppCompatActivity {
                 return ov;
             }
         };
+
         if (mfetcher != null) {
             mfetcher.addUpdateList(newsListAdapter, ctnts);
         }
@@ -144,6 +145,8 @@ public class CategoryList extends AppCompatActivity {
 
         Intent intent = getIntent();
         String url = intent.getStringExtra("url");
+
+        this.setTitle(intent.getStringExtra("title"));
 
         Intent srvint = new Intent(this, FetchXML.class);
 		srvint.putExtra("url", url);

@@ -52,7 +52,7 @@ public class NewsView extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				Intent si = new Intent(Intent.ACTION_SEND);
-				si.setType("img/*");
+				si.setType("image/*");
 				si.putExtra(Intent.EXTRA_TEXT, data.content);
 				si.putExtra(Intent.EXTRA_SUBJECT, data.title);
 				si.putExtra(Intent.EXTRA_STREAM, imgurl);

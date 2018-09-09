@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
     History history;
 
-
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
@@ -86,15 +84,19 @@ public class MainActivity extends AppCompatActivity {
             public View getView(int position, View corr, ViewGroup parent) {
                 final CategoryItem item = getItem(position);
                 View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
-                ov.findViewById(R.id.content_text).setVisibility(View.GONE);
+                //  ov.findViewById(R.id.content_text).setVisibility(View.GONE);
+                ((TextView) ov.findViewById(R.id.content_text)).setText(item.url);
                 ((TextView) ov.findViewById(R.id.title_text)).setText(item.title);
+                ov.findViewById(R.id.title_text).setVisibility(View.VISIBLE);
                 ((ImageButton)ov.findViewById(R.id.likestar)).setVisibility(View.GONE);
+                Log.i("Set category title", item.title);
 
                 ov.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent newActivity = new Intent(MainActivity.this, CategoryList.class);
                         newActivity.putExtra("url", item.url);
+                        newActivity.putExtra("title", item.title);
                         startActivity(newActivity);
                     }
                 });
@@ -120,14 +122,13 @@ public class MainActivity extends AppCompatActivity {
 
     RcmdGenerator rg;
     ArrayAdapter<FetchXML.DataItem> mrcadapter;
+    ArrayList<FetchXML.DataItem> rcmds = new ArrayList();
 
     protected void initRcmdList() {
         rg = new RcmdGenerator();
         ListView lv = (ListView) findViewById(R.id.recmd_list);
-        rg.generate();
-        ArrayList<FetchXML.DataItem> ctnts = new ArrayList();
-        ctnts.add(new FetchXML.DataItem("加载中", "", ""));
-        this.mrcadapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, ctnts) {
+        rcmds.add(new FetchXML.DataItem("加载中", "", ""));
+        this.mrcadapter = new ArrayAdapter<FetchXML.DataItem>(getApplicationContext(), R.layout.list_item, rcmds) {
             @Override
             public View getView(int position, View corr, ViewGroup parent) {
                 final FetchXML.DataItem item = getItem(position);
@@ -165,11 +166,13 @@ public class MainActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.reset_action)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mrcadapter.clear();
+                rcmds.clear();
+                rcmds.add(new FetchXML.DataItem("加载中", "", ""));
+                mrcadapter.notifyDataSetChanged();
                 rg.generate();
             }
         });
-        rg.setArray(ctnts, this);
+        rg.setArray(rcmds, this);
         rg.generate();
     }
 
@@ -223,7 +226,16 @@ public class MainActivity extends AppCompatActivity {
     private void initManageList() {
         ArrayList<String> btns = new ArrayList();
         btns.add("管理目录");
-        ArrayAdapter<String> arrad = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_spinner_item, btns);
+        ArrayAdapter<String> arrad = new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item, btns) {
+            @Override
+            public View getView(int position, View corr, ViewGroup parent) {
+                View ov = LayoutInflater.from(getApplicationContext()).inflate(R.layout.list_item, null);
+                ov.findViewById(R.id.title_text).setVisibility(View.GONE);
+                ((TextView) ov.findViewById(R.id.content_text)).setText(this.getItem(position));
+                ((ImageButton) ov.findViewById(R.id.likestar)).setVisibility(View.GONE);
+                return ov;
+            }
+        };
         ((ListView)findViewById(R.id.manage_list)).setAdapter(arrad);
         ((ListView)findViewById(R.id.manage_list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -240,8 +252,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("main", "created");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.i("main", "a");
 
         this.history = History.getInstance(getApplicationContext().getFilesDir().getAbsolutePath());
 
@@ -249,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
         this.initLikeList();
         Intent srvint = new Intent(this, FetchService.class);
         bindService(srvint, conn, BIND_AUTO_CREATE);
+        Log.i("main", "b");
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -256,8 +271,10 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.category_container).setVisibility(View.GONE);
         findViewById(R.id.recmd_container).setVisibility(View.GONE);
         findViewById(R.id.manage_container).setVisibility(View.GONE);
+        Log.i("main", "c");
 
         this.initRcmdList();
+        Log.i("main", "d");
 
         mrecv = new BroadcastReceiver() {
             @Override
@@ -276,12 +293,15 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        Log.i("main", "e");
         this.initManageList();
+        Log.i("main", "f");
 
         IntentFilter itf = new IntentFilter("update_like");
         itf.addAction("update_list");
         itf.addAction("update_rcmd");
         registerReceiver(mrecv, itf);
+        Log.i("main", "g");
     }
 
     @Override

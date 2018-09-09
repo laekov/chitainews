@@ -28,31 +28,41 @@
         android:id="@+id/recmd_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/navigation"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="1.0">
 
-        <Button
-            android:id="@+id/reset_action"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="999"
-            android:text="Button" />
+            android:layout_weight="10"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/more_action"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="More" />
+
+            <Button
+                android:id="@+id/reset_action"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/msg_reset" />
+        </LinearLayout>
 
         <ListView
             android:id="@+id/recmd_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <Button
-            android:id="@+id/more_action"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="999"
-            android:text="More" />
+            android:layout_height="match_parent"
+            android:layout_weight="30" />
 
     </LinearLayout>
 
