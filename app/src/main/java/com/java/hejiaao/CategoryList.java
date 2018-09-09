@@ -121,6 +121,7 @@ public class CategoryList extends AppCompatActivity {
 
             }
         });
+        lv.requestFocus();
     }
 
     private class mBroadcastRecv extends BroadcastReceiver {
